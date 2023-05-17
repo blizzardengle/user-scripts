@@ -1,0 +1,16 @@
+#update_scores {
+    display: grid;
+    grid-template-areas: "fudge buttons" "scores buttons";
+}
+#update_scores .update_scores_fudge {
+    grid-area: fudge;
+}
+#update_scores .update_scores_final_score {
+    grid-area: scores;
+}
+#update_scores .update_scores {
+    grid-area: buttons;
+}
+#update_scores .update_scores .button-container {
+    position: relative;
+}
