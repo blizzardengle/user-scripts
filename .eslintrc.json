@@ -40,6 +40,7 @@
             }
         ],
         "no-use-before-define": "off",
+        "object-curly-newline": "off",
         "padded-blocks": [
             "error",
             {

@@ -2,7 +2,9 @@ const Fs = require('fs');
 const Path = require('path');
 const Sass = require('sass');
 
-const ignoreAtRoot = ['bin', 'node_modules'];
+const CDN_URL = 'https://blizzardengle.github.io/user-scripts';
+
+const CDN_REGEX = /{{CDN_URL}}/g;
 
 class UserScripts {
 
@@ -19,16 +21,15 @@ class UserScripts {
 
     build() {
         const info = {};
-        Fs.readdirSync(this.root, { withFileTypes: true }).forEach((item) => {
+        const scripts = Path.join(this.root, 'scripts');
+        Fs.readdirSync(scripts, { withFileTypes: true }).forEach((item) => {
             if (item.isDirectory()) {
-                const { name } = item;
-                if (name[0] === '.' || name == '__dist') { return; }
-                if (ignoreAtRoot.includes(item.name)) { return; }
-                this.processDir(Path.join(this.root, item.name), info);
+                if (item.name[0] === '.') { return; }
+                this.processDir(Path.join(scripts, item.name), info);
             }
         });
         const index = Path.join(this.root, 'index.html');
-        this.copyFile(index, this.getDestination(index));
+        this.copyFile(index, Path.join(this.root, '__dist', 'index.html'));
     }
 
     copyFile(src, dest) {
@@ -39,12 +40,11 @@ class UserScripts {
     }
 
     getDestination(src) {
-        const rel = src.replace(this.root + Path.sep, '');
+        const rel = src.replace(Path.join(this.root, 'scripts', Path.sep), '');
         let dest = Path.join(this.root, '__dist', rel);
         if (Path.extname(src) === '.scss') {
             dest = dest.replace(/scss/gi, 'css');
         }
-        // console.log(src);
         return dest;
     }
 
@@ -64,7 +64,8 @@ class UserScripts {
                     this.processScss(src, dest);
                     return;
                 }
-                this.copyFile(src, dest);
+                const content = Fs.readFileSync(src);
+                this.writeFile(dest, content.toString().replace(CDN_REGEX, CDN_URL));
             }
         });
     }
@@ -75,7 +76,7 @@ class UserScripts {
 
     processScss(src, dest) {
         const compiled = Sass.compile(src, { style: 'compressed' });
-        this.writeFile(dest, compiled.css);
+        this.writeFile(dest, compiled.css.replace(CDN_REGEX, CDN_URL));
     }
 
     run(cmd) {
