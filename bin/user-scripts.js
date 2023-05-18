@@ -2,7 +2,7 @@ const Fs = require('fs');
 const Path = require('path');
 const Sass = require('sass');
 
-const ignoreAtRoot = ['bin', 'require', 'node_modules'];
+const ignoreAtRoot = ['bin', 'node_modules'];
 
 class UserScripts {
 
