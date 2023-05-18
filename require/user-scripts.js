@@ -18,7 +18,9 @@ class UserScripts {
         return this;
     }
 
-    addScript(url, options = {doc: document, executed: '', footer: false, type: ''}) {
+    addScript(url, options = { doc: document, executed: '', footer: false, type: '' }) {
+        // eslint-disable-next-line no-param-reassign
+        if (!options.doc) { options.doc = document; }
         const link = document.createElement('script');
         link.src = url;
         if (options.executed === 'defer') {
@@ -36,12 +38,14 @@ class UserScripts {
         options.doc.getElementsByTagName('head')[0].appendChild(link);
     }
 
-    addStylesheet(url, options = {doc: document, media: 'screen,print'}) {
+    addStylesheet(url, options = { doc: document, media: 'screen,print' }) {
+        // eslint-disable-next-line no-param-reassign
+        if (!options.doc) { options.doc = document; }
         const link = document.createElement('LINK');
         link.href = url;
         link.type = 'text/css';
         link.rel = 'stylesheet';
-        link.media = options.media;
+        link.media = options.media || 'screen,print';
         options.doc.getElementsByTagName('head')[0].appendChild(link);
     }
 
@@ -49,20 +53,20 @@ class UserScripts {
      * A helper function that simplifies some of the aspects of creating a new
      * element to attach to the DOM. This will allow you to write less code in
      * your scripts when you need to create new elements.
-     * 
+     *
      * @param {string} tag     The tagName to create.
      * @param {object} options A special options object that can be used to pass in the elements
      *                         innerHTML, listeners, classes, ids, and so on.
-     * 
+     *
      * @returns The created element.
      */
     createElement(tag, options = {}) {
-        const attrs = options.attrs;
-        const classes = options.classes;
-        const id = options.id;
-        const innerHTML = options.innerHTML;
-        const listeners = options.listeners;
-        let elem = document.createElement(tag);
+        const { attrs } = options;
+        const { classes } = options;
+        const { id } = options;
+        const { innerHTML } = options;
+        const { listeners } = options;
+        const elem = document.createElement(tag);
         if (attrs) {
             if (this.isObject(attrs)) {
                 Object.keys(attrs).forEach((attr) => {
@@ -96,7 +100,7 @@ class UserScripts {
         if (typeof check === 'object' && !Array.isArray(check) && check !== null) {
             return true;
         }
-        return false
+        return false;
     }
 
 }

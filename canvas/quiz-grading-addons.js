@@ -1,12 +1,12 @@
 // ==UserScript==
-// @name         Quiz Response Quick Grader
+// @name         Quiz Grading Addons
 // @namespace    Canvas
 // @version      1.0
 // @description  Adds a button to immediately award full points to all open response questions in a quiz.
 // @author       Christopher Keers
 // @match        https://*.instructure.com/courses/*/gradebook/speed_grader*
 // @run-at       document-start
-// @require      https://blizzardengle.github.io/user-scripts/require/classes.js
+// @require      https://blizzardengle.github.io/user-scripts/require/user-scripts.js
 // ==/UserScript==
 
 const addAutoGradeButton = (body, questions) => {
@@ -44,13 +44,17 @@ const hookQuiz = (iframe) => {
 
     if (questions.length < 1) { return; }
 
+    const css = 'https://blizzardengle.github.io/user-scripts/canvas/css/quiz-grading-addons.css';
+    // eslint-disable-next-line no-undef
+    UserScript.addStylesheet(css, { doc: body.ownerDocument });
+
     addAutoGradeButton(body, questions);
 };
 
 const updateScores = (questions, originalSubmit) => {
     questions.forEach((question) => {
         let points = question.querySelector('.question_points');
-        points = parseInt(points.innerText.replace(/\D/g, ''));
+        points = parseInt(points.innerText.replace(/\D/g, ''), 10);
         if (!points) { return; }
         const hiddenInput = question.querySelector('.question_input_hidden');
         const visibleInput = question.querySelector('.question_input');
@@ -65,7 +69,7 @@ window.addEventListener('load', () => {
     const iframeHolder = document.getElementById('iframe_holder');
 
     const callback = (mutationList, observer) => {
-        for (const mutation of mutationList) {
+        mutationList.forEach((mutation) => {
             if (mutation.type !== 'childList') { return; }
             const iframe = iframeHolder.querySelector('#speedgrader_iframe');
             if (!iframe) { return; }
@@ -78,7 +82,7 @@ window.addEventListener('load', () => {
             };
 
             iframe.addEventListener('load', loadCallback);
-        }
+        });
     };
 
     const observer = new MutationObserver(callback);
