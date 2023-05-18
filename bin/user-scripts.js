@@ -27,6 +27,8 @@ class UserScripts {
                 this.processDir(Path.join(this.root, item.name), info);
             }
         });
+        const index = Path.join(this.root, 'index.html');
+        this.copyFile(index, this.getDestination(index));
     }
 
     copyFile(src, dest) {
