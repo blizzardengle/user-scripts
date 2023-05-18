@@ -6,6 +6,7 @@
 // @author       Christopher Keers
 // @match        https://*.instructure.com/courses/*/gradebook/speed_grader*
 // @run-at       document-start
+// @require      https://blizzardengle.github.io/user-scripts/require/classes.js
 // ==/UserScript==
 
 const addAutoGradeButton = (body, questions) => {
@@ -49,7 +50,7 @@ const hookQuiz = (iframe) => {
 const updateScores = (questions, originalSubmit) => {
     questions.forEach((question) => {
         let points = question.querySelector('.question_points');
-        points = parseInt(points.innerText.replace(/\D/g,''));
+        points = parseInt(points.innerText.replace(/\D/g, ''));
         if (!points) { return; }
         const hiddenInput = question.querySelector('.question_input_hidden');
         const visibleInput = question.querySelector('.question_input');
@@ -65,7 +66,7 @@ window.addEventListener('load', () => {
 
     const callback = (mutationList, observer) => {
         for (const mutation of mutationList) {
-            if (mutation.type !== "childList") { return; }
+            if (mutation.type !== 'childList') { return; }
             const iframe = iframeHolder.querySelector('#speedgrader_iframe');
             if (!iframe) { return; }
             if (iframe.getAttribute('processed')) { return; }
@@ -82,5 +83,5 @@ window.addEventListener('load', () => {
 
     const observer = new MutationObserver(callback);
 
-    observer.observe(iframeHolder, {childList: true});
-}); 
+    observer.observe(iframeHolder, { childList: true });
+});
