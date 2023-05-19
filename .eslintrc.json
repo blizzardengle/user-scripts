@@ -11,6 +11,9 @@
     "parserOptions": {
         "ecmaVersion": "latest"
     },
+    "globals": {
+        "UserScript": true
+    },
     "rules": {
         "class-methods-use-this": "off",
         "comma-dangle": [

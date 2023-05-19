@@ -96,11 +96,49 @@ class UserScripts {
         return elem;
     }
 
+    debounce(func, wait, scope = null) {
+        let timeoutId = null;
+        return (...args) => {
+            window.clearTimeout(timeoutId);
+            timeoutId = window.setTimeout(() => {
+                func.apply(scope, args);
+            }, wait);
+        };
+    }
+
     isObject(check) {
         if (typeof check === 'object' && !Array.isArray(check) && check !== null) {
             return true;
         }
         return false;
+    }
+
+    observe(elem, callback, events = ['childList']) {
+        const config = {
+            attributes: events.includes('attributes'),
+            childList: events.includes('childList'),
+            characterData: events.includes('characterData')
+        };
+
+        const observer = new MutationObserver((mutationsList) => {
+            mutationsList.forEach((mutation) => {
+                callback(mutation.type, elem);
+            });
+        });
+        observer.observe(elem, config);
+        return observer;
+    }
+
+    throttle(func, delay = 250) {
+        let shouldWait = false;
+        return (...args) => {
+            if (shouldWait) return;
+            func(...args);
+            shouldWait = true;
+            setTimeout(() => {
+                shouldWait = false;
+            }, delay);
+        };
     }
 
     // https://stackoverflow.com/a/61511955/3193156
@@ -118,9 +156,21 @@ class UserScripts {
                 }
             });
 
-            observer.observe(doc.body, {
-                childList: true,
-                subtree: true
+            /**
+             * Force the observer to wait a little bit to ensure that body has
+             * been added to the document.
+             */
+            document.addEventListener('DOMContentLoaded', () => {
+                /**
+                 * This is a bit overkill but is sometimes needed if you are
+                 * attempting to observe an iframe that is still loading in.
+                 */
+                setTimeout(() => {
+                    observer.observe(doc.body, {
+                        childList: true,
+                        subtree: true
+                    });
+                }, 0);
             });
         });
     }
