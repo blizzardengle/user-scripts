@@ -103,6 +103,28 @@ class UserScripts {
         return false;
     }
 
+    // https://stackoverflow.com/a/61511955/3193156
+    waitFor(selector, doc = document) {
+        return new Promise((resolve) => {
+            if (doc.querySelector(selector)) {
+                resolve(doc.querySelector(selector));
+                return;
+            }
+
+            const observer = new MutationObserver((mutations) => {
+                if (doc.querySelector(selector)) {
+                    resolve(doc.querySelector(selector));
+                    observer.disconnect();
+                }
+            });
+
+            observer.observe(doc.body, {
+                childList: true,
+                subtree: true
+            });
+        });
+    }
+
 }
 
 const UserScript = new UserScripts();
