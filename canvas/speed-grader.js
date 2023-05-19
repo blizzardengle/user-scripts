@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Canvas Speed Grader Tweaks
 // @namespace    Canvas
-// @version      1.0
+// @version      1.1
 // @description  Adds various tweaks to the speed grader: Modifies styles, auto award full points to response questions, and so on.
 // @author       Christopher Keers
 // @match        https://*.instructure.com/courses/*/gradebook/speed_grader*
@@ -19,7 +19,28 @@ class CanvasSpeedGrader {
             });
     }
 
-    addAutoGradeResponseButton(body) {
+    addAutoGradeAssignmentResponseButton(body) {
+        const wrapper = body.querySelector('[data-automation="sdk-grading"]');
+        if (!wrapper) { return; }
+
+        const buttonOriginal = body.querySelector('[data-automation="sdk-update-grade-button"]');
+        if (!buttonOriginal) { return; }
+
+        const buttonFullPoints = UserScript.createElement('button', {
+            attrs: {
+                type: 'button'
+            },
+            classes: 'btn btn-primary',
+            innerHTML: 'Update Essay Questions to Full Points',
+            listeners: [
+                ['click', this.updateAssignmentResponseScores.bind(null, body, buttonOriginal)]
+            ]
+        });
+
+        buttonOriginal.parentElement.after(buttonFullPoints);
+    }
+
+    addAutoGradeQuizResponseButton(body) {
         const buttonContainer = body.querySelector('#update_scores .button-container');
         if (!buttonContainer) { return; }
 
@@ -33,7 +54,7 @@ class CanvasSpeedGrader {
             classes: 'btn btn-primary',
             innerHTML: 'Update Essay Questions to Full Points',
             listeners: [
-                ['click', this.updateScores.bind(null, body, buttonOriginal)]
+                ['click', this.updateQuizResponseScores.bind(null, body, buttonOriginal)]
             ]
         });
 
@@ -52,14 +73,40 @@ class CanvasSpeedGrader {
             const body = iframe.contentDocument.querySelector('body.quizzes-speedgrader');
             if (body) {
                 this.addSpeedGraderStyles(body);
-                this.addAutoGradeResponseButton(body);
+                this.addAutoGradeQuizResponseButton(body);
+                this.addAutoGradeAssignmentResponseButton(body);
             }
             iframe.removeEventListener('load', waitUntilLoaded);
         };
         iframe.addEventListener('load', waitUntilLoaded);
     }
 
-    updateScores(body, button) {
+    updateAssignmentResponseScores(body, button) {
+        const regions = body.querySelectorAll('[data-automation="sdk-grading-result-wrapper"]');
+        if (!regions) { return; }
+
+        let changes = false;
+
+        regions.forEach((region) => {
+            const question = region.querySelector('div.fs-mask');
+            if (question) {
+                if (!question.innerText.includes('/')) { return; }
+                const buttons = question.querySelectorAll('button');
+                for (let i = 0; i < buttons.length; i++) {
+                    if (buttons[i].innerText.includes('correct')) {
+                        buttons[i].click();
+                        changes = true;
+                        break;
+                    }
+                }
+            }
+        });
+
+        if (!changes) { return; }
+        button.click();
+    }
+
+    updateQuizResponseScores(body, button) {
         const regions = body.querySelectorAll('div[role="region"]');
         if (!regions) { return; }
 
