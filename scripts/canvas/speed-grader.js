@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Quiz Grading Addons
+// @name         Canvas Speed Grader Tweaks
 // @namespace    Canvas
 // @version      1.0
 // @description  Adds various tweaks to the speed grader: Modifies styles, auto award full points to response questions, and so on.
